@@ -33,5 +33,27 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  client-gateway:
+    container_name: nestjs_client_gateway
+    build:
+      context: ./client-gateway
+      dockerfile: Dockerfile
+    ports:
+      - "3002:3002"
+    environment:
+      NODE_ENV: development
+      PORT: 3002
+      # DATABASE_HOST: postgres
+      # DATABASE_PORT: 5432
+      # DATABASE_USER: postgres
+      # DATABASE_PASSWORD: postgres
+      # DATABASE_NAME: nestdb
+    depends_on:
+      - postgres
+    volumes:
+      - ./client-gateway:/usr/src/app
+      - /usr/src/app/node_modules
+    command: npm run start:dev
+
 volumes:
   postgres_data:
