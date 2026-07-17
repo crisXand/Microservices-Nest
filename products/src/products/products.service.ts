@@ -45,11 +45,12 @@ export class ProductsService {
     
   }
 
-  update(id: number, updateProductDto: UpdateProductDto) {
+  update(updateProductDto: UpdateProductDto) {
+    const { id, ...data } = updateProductDto;
     this.findOne(id)
     this.prisma.product.update({
       where: { id },
-      data: updateProductDto
+      data: data
     })
 
   }
