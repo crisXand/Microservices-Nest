@@ -1,6 +1,7 @@
 services:
-  app:
-    container_name: nestjs_app
+  products:
+    user: "1000:1000"
+    container_name: nestjs_products
     build:
       context: .
       dockerfile: Dockerfile
@@ -17,8 +18,8 @@ services:
     depends_on:
       - postgres
     volumes:
-      - ./products:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./products:/usr/src/products
+      - /usr/src/products/node_modules
     command: npm run start:dev
 
   postgres:
@@ -34,6 +35,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   client-gateway:
+    user: "1000:1000"
     container_name: nestjs_client_gateway
     build:
       context: ./client-gateway
@@ -43,16 +45,18 @@ services:
     environment:
       NODE_ENV: development
       PORT: 3002
+      PRODUCT_SERVICE_HOST: products
+      PRODUCT_SERVICE_PORT: 3001
       # DATABASE_HOST: postgres
       # DATABASE_PORT: 5432
       # DATABASE_USER: postgres
       # DATABASE_PASSWORD: postgres
       # DATABASE_NAME: nestdb
     depends_on:
-      - postgres
+      - products
     volumes:
-      - ./client-gateway:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./client-gateway:/usr/src/gateway
+      - /usr/src/gateway/node_modules
     command: npm run start:dev
 
 volumes:

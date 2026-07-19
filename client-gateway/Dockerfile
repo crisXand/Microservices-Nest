@@ -1,8 +1,12 @@
 FROM node:24-alpine
 
-WORKDIR /usr/src/app
+WORKDIR /usr/src/gateway
+
+RUN chown -R node:node /usr/src/gateway
 
 COPY ./package*.json ./
+
+USER node
 
 RUN npm install
 

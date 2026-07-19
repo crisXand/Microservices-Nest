@@ -1,8 +1,12 @@
 FROM node:24-alpine
 
-WORKDIR /usr/src/app
+WORKDIR /usr/src/products
+
+RUN chown -R node:node /usr/src/products
 
 COPY ./products/package*.json ./
+
+USER node
 
 RUN npm install
 
