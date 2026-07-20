@@ -1,8 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, HttpStatus } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from 'src/prisma.service';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
+import { RpcException } from '@nestjs/microservices';
 
 @Injectable()
 export class ProductsService {
@@ -41,7 +42,10 @@ export class ProductsService {
       return product
     }
     console.log("product not found")
-    throw new NotFoundException(`Product with id ${id} not found`);
+    throw new RpcException({
+      status: HttpStatus.NOT_FOUND,
+      message: `Product with id ${id} not found`,
+    });
     
   }
 
