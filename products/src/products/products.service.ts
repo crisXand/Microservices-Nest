@@ -4,15 +4,28 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from 'src/prisma.service';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { RpcException } from '@nestjs/microservices';
+import { PrismaClient, Prisma } from "../../generated/prisma/client";
 
 @Injectable()
 export class ProductsService {
   constructor(private prisma: PrismaService){}
   
   async create(createProductDto: CreateProductDto) {
-    return await this.prisma.product.create({
-      data: createProductDto
-    })
+    try{
+      return await this.prisma.product.create({
+        data: createProductDto
+      })
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        
+        if (error.code === 'P2002') {
+          throw new RpcException({
+            status: HttpStatus.BAD_REQUEST,
+            message: "A product with the same name already exists.",
+          });
+        }
+      }
+    }
   }
 
   async findAll( paginationDto: PaginationDto) {
@@ -49,10 +62,10 @@ export class ProductsService {
     
   }
 
-  update(updateProductDto: UpdateProductDto) {
+  async update(updateProductDto: UpdateProductDto) {
     const { id, ...data } = updateProductDto;
-    this.findOne(id)
-    this.prisma.product.update({
+    await this.findOne(id)
+    return this.prisma.product.update({
       where: { id },
       data: data
     })
