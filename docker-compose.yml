@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:3001"
+      - "3000:3000"
     environment:
       NODE_ENV: development
       PORT: 3001
@@ -21,6 +21,28 @@ services:
       - ./products:/usr/src/products
       - /usr/src/products/node_modules
     command: npm run start:dev
+
+  orders:
+    user: "1000:1000"
+    container_name: nestjs_orders
+    build:
+      context: ./orders
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: postgres
+      DATABASE_NAME: nestdb
+    depends_on:
+      - postgres
+    volumes:
+      - ./orders:/usr/src/orders
+      - /usr/src/orders/node_modules
 
   postgres:
     container_name: nestjs_postgres
