@@ -9,7 +9,7 @@ services:
       - "3000:3000"
     environment:
       NODE_ENV: development
-      PORT: 3001
+      PORT: 3000
       DATABASE_HOST: postgres
       DATABASE_PORT: 5432
       DATABASE_USER: postgres
@@ -23,7 +23,6 @@ services:
     command: npm run start:dev
 
   orders:
-    user: "1000:1000"
     container_name: nestjs_orders
     build:
       context: ./orders
@@ -33,16 +32,16 @@ services:
     environment:
       NODE_ENV: development
       PORT: 3001
-      DATABASE_HOST: postgres
-      DATABASE_PORT: 5432
-      DATABASE_USER: postgres
-      DATABASE_PASSWORD: postgres
-      DATABASE_NAME: nestdb
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/nestdb
     depends_on:
       - postgres
     volumes:
+      # Código fuente del host para desarrollo/hot reload
       - ./orders:/usr/src/orders
-      - /usr/src/orders/node_modules
+
+      # node_modules vive dentro de Docker,
+      # no se sobrescribe con los archivos del host
+      - orders_node_modules:/usr/src/orders/node_modules
 
   postgres:
     container_name: nestjs_postgres
@@ -57,7 +56,6 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
   client-gateway:
-    user: "1000:1000"
     container_name: nestjs_client_gateway
     build:
       context: ./client-gateway
@@ -68,7 +66,9 @@ services:
       NODE_ENV: development
       PORT: 3002
       PRODUCT_SERVICE_HOST: products
-      PRODUCT_SERVICE_PORT: 3001
+      PRODUCT_SERVICE_PORT: 3000
+      ORDER_SERVICE_HOST: orders
+      ORDER_SERVICE_PORT: 3001
       # DATABASE_HOST: postgres
       # DATABASE_PORT: 5432
       # DATABASE_USER: postgres
@@ -78,8 +78,11 @@ services:
       - products
     volumes:
       - ./client-gateway:/usr/src/gateway
-      - /usr/src/gateway/node_modules
+      - gateway_node_modules:/usr/src/gateway/node_modules
+
     command: npm run start:dev
 
 volumes:
   postgres_data:
+  orders_node_modules:
+  gateway_node_modules:

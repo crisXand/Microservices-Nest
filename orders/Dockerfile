@@ -1,16 +1,14 @@
 FROM node:24-alpine
 
+USER node
 WORKDIR /usr/src/orders
 
-RUN chown -R node:node /usr/src/orders
+COPY --chown=node:node ./package*.json ./
 
-COPY ./package*.json ./
-
-USER node
 
 RUN npm install
 
-COPY ./ .
+COPY --chown=node:node ./ .
 
 EXPOSE 3000
 
